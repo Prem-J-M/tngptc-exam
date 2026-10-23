@@ -203,9 +203,9 @@ async function submit(st){
  var arr=Object.keys(cur.ans).map(function(id){var a=cur.ans[id];return{q:id,t:a.t||"",o:a.o||""}});
  var r=await sb.rpc("submit_exam",{p_attempt:cur.aid,p_answers:arr,p_status:st});
  if(r.error){
-  cur.done=false;setNet(false);
-  if(st==="auto_submitted")setTimeout(function(){submit(st)},5000);
-  else msg("Submit failed. Check internet and try again.");
+  cur.done=false;var em=(r.error.message||r.error.details||r.error.hint||String(r.error));setNet(false,em);
+  if(st==="auto_submitted"){modal("Time is up","Submit failed: "+em+" (retrying...)",[]);setTimeout(function(){submit(st)},5000)}
+  else msg("Submit failed: "+em);
   return;
  }
  finish(r.data.status);
