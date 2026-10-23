@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Student | TNGPTC Exam Portal</title>
+<style>
+:root{--bg:#eef1f6;--card:#fff;--text:#14213d;--muted:#5b6578;--line:#d3d9e4;--brand:#12263f;--bt:#fff;--err:#b3261e;--ok:#1b6b3a;--sel:#dbe7ff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#16202f;--text:#e8edf5;--muted:#9aa6ba;--line:#2a374b;--brand:#e8edf5;--bt:#12263f;--err:#ff8a80;--ok:#6fd28f;--sel:#243a5e;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+textarea{-webkit-user-select:text;user-select:text}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--brand);color:var(--bt)}
+header button{background:none;border:1px solid currentColor;color:inherit;border-radius:8px;padding:6px 12px;font:inherit}
+main{max-width:720px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:18px}
+textarea{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.btn{padding:10px 16px;border:0;border-radius:8px;background:var(--brand);color:var(--bt);font:inherit;font-weight:600}
+.btn.alt{background:none;color:var(--text);border:1px solid var(--line)}
+.btn.red{background:var(--err);color:#fff}
+.btn:disabled{opacity:.5}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+small{color:var(--muted);display:block}
+.pill{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:2px 10px;white-space:nowrap}
+#msg{position:sticky;top:0;z-index:30;margin-bottom:10px;padding:10px 12px;border-radius:8px;background:var(--card);border:1px solid var(--line)}
+.e{color:var(--err)}.o{color:var(--ok)}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--brand);color:var(--bt);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.bar .pill{border-color:currentColor}
+#x-time{font-size:20px;font-variant-numeric:tabular-nums}
+.qt{white-space:pre-wrap;font-size:17px;margin:8px 0 14px}
+.opt{display:block;width:100%;text-align:left;margin-bottom:10px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:inherit}
+.opt.sel{background:var(--sel);border-color:var(--ok)}
+#pal{display:flex;flex-wrap:wrap;gap:6px}
+#pal button{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit}
+#pal button.a{background:var(--sel)}#pal button.c{outline:2px solid var(--brand)}
+.nav{position:sticky;bottom:0;display:flex;gap:8px;padding:8px 0;background:var(--bg)}
+.nav .btn{flex:1}
+#wm{position:fixed;inset:0;pointer-events:none;z-index:10}
+#ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px}
+#ov .box{background:var(--card);border-radius:14px;padding:20px;max-width:420px;width:100%}
+#ov .btn{margin-top:10px;margin-right:8px}
+[hidden]{display:none!important}
+</style></head><body hidden>
+<header id="hd"><b>TNGPTC Student</b><span id="who"></span><button id="out" type="button">Log out</button></header>
+<main>
+<div id="msg" hidden></div>
+<section id="v-list"><div class="card"><h2>My exams</h2><div id="elist"></div><button class="btn alt" id="refresh" type="button" style="margin-top:12px">Refresh</button></div></section>
+<section id="v-exam" hidden>
+<div class="bar"><span id="x-name"></span><b id="x-time">--:--</b><span id="x-warn" class="pill"></span></div>
+<div class="card"><small id="qnum"></small><div id="qbox"></div><small id="x-net"></small></div>
+<div class="card"><div id="pal"></div></div>
+<div class="nav"><button class="btn alt" id="prev" type="button">Previous</button><button class="btn" id="next" type="button">Next</button><button class="btn red" id="sub" type="button">Submit</button></div>
+</section>
+<section id="v-done" hidden><div class="card"><h2 id="d-t">Exam submitted</h2><p id="d-p"></p><button class="btn" id="d-back" type="button">Back to my exams</button></div></section>
+</main>
+<div id="wm" hidden></div>
+<div id="ov" hidden><div class="box"><h2 id="ov-t"></h2><p id="ov-p"></p><div id="ov-b"></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var sb=window.supabase.createClient("https://trunjmpvfdrxemjrndck.supabase.co","sb_publishable_COevBDyL8fdCHJuIpEHGVA_mwPcIrKv");
+var prof=null,list=[],listT=0,cur=null,fullOK=false,lastL=0,lastC=0,tick=null,saver=null;
+function el(t,x,c){var e=document.createElement(t);if(x!=null)e.textContent=x;if(c)e.className=c;return e}
+function btn(x,fn,c){var b=el("button",x,c||"btn");b.type="button";b.onclick=fn;return b}
+function msg(t,ok){var m=$("msg");m.textContent=t;m.className=ok?"o":"e";m.hidden=false;setTimeout(function(){m.hidden=true},6000)}
+function clean(e){return(e&&e.message)||"Failed"}
+function fmt(s){return new Date(s).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}
+function hms(s){s=Math.max(0,s);var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")}
+function show(v){["v-list","v-exam","v-done"].forEach(function(i){$(i).hidden=i!==v});$("hd").hidden=v==="v-exam";$("wm").hidden=v!=="v-exam";window.scrollTo(0,0)}
+function modal(t,p,bs){$("ov-t").textContent=t;$("ov-p").textContent=p;var b=$("ov-b");b.textContent="";bs.forEach(function(x){b.appendChild(btn(x[0],function(){$("ov").hidden=true;x[1]&&x[1]()},x[2]))});$("ov").hidden=false}
+function goFull(){try{var r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(r&&r.then)r.then(function(){fullOK=true}).catch(function(){fullOK=false})}catch(e){fullOK=false}}
+function exitFull(){fullOK=false;try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}}
+/* ---------- exam list ---------- */
+async function loadList(){
+ var r=await sb.rpc("my_exams");
+ if(r.error){msg(clean(r.error));return}
+ list=r.data||[];listT=Date.now();renderList();
+}
+function renderList(){
+ var box=$("elist");box.textContent="";
+ if(!list.length){box.appendChild(el("small","No exams for your section yet."));return}
+ var gone=Math.floor((Date.now()-listT)/1000);
+ list.forEach(function(e){
+  var ts=e.seconds_to_start-gone,te=e.seconds_to_end-gone;
+  var row=el("div",null,"item"),l=el("div");
+  l.appendChild(el("b",e.name));
+  l.appendChild(el("small",(e.subject||"")+" | "+fmt(e.start)+" | "+e.mins+" min"));
+  row.appendChild(l);
+  var r;
+  if(e.status==="in_progress"&&te>-30)r=btn("Resume",function(){enter(e.attempt_id,false)});
+  else if(e.status)r=el("span","Submitted","pill");
+  else if(ts>0){r=el("span","Starts in "+hms(ts),"pill cd");r.dataset.at=Date.now()+ts*1000}
+  else if(te>0)r=btn("Start",function(){startExam(e.id)});
+  else r=el("span","Missed","pill");
+  row.appendChild(r);box.appendChild(row);
+ });
+}
+setInterval(function(){
+ if($("v-list").hidden)return;
+ var cds=document.querySelectorAll(".cd");
+ for(var i=0;i<cds.length;i++){var rem=Math.ceil((cds[i].dataset.at-Date.now())/1000);if(rem<=0){renderList();return}cds[i].textContent="Starts in "+hms(rem)}
+},1000);
+setInterval(function(){if(!$("v-list").hidden)loadList()},20000);
+/* ---------- start / resume ---------- */
+async function startExam(id){
+ goFull();
+ var r=await sb.rpc("start_exam",{p_exam:id});
+ if(r.error){exitFull();msg(clean(r.error));loadList();return}
+ enter(r.data.attempt_id,true);
+}
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hash(x){var h=0;for(var i=0;i<x.length;i++)h=Math.imul(31,h)+x.charCodeAt(i)|0;return h}
+function shuf(a,r){for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+async function enter(aid,fresh){
+ if(!fresh)goFull();
+ var r=await sb.rpc("get_exam_data",{p_attempt:aid});
+ if(r.error){exitFull();msg(clean(r.error));return}
+ var d=r.data;
+ if(d.status!=="in_progress"){finish(d.status);return}
+ var ans={},dirty={},loc=null;
+ (d.answers||[]).forEach(function(a){ans[a.q]={t:a.t||"",o:a.o||""}});
+ try{loc=JSON.parse(localStorage.getItem("tng_a_"+aid)||"null")}catch(e){}
+ if(loc)Object.keys(loc).forEach(function(k){ans[k]=loc[k];dirty[k]=1});
+ var rr=rng(d.seed),qs=shuf(d.questions.filter(function(q){return Number(q.marks)===1}),rr).concat(shuf(d.questions.filter(function(q){return Number(q.marks)!==1}),rr));
+ qs.forEach(function(q){if(Number(q.marks)===1)q.opts=shuf(["a","b","c","d"],rng(d.seed^hash(q.id)))});
+ cur={aid:aid,mx:d.max_warnings,warn:d.warnings,deadline:Date.now()+d.seconds_left*1000,qs:qs,ans:ans,dirty:dirty,idx:0,done:false,pend:[],saving:false};
+ try{localStorage.setItem("tng_active",aid)}catch(e){}
+ $("x-name").textContent=d.name;
+ buildWM();show("v-exam");renderQ();warnLabel();
+ clearInterval(tick);tick=setInterval(onTick,1000);onTick();
+ clearInterval(saver);saver=setInterval(autosave,30000);
+ if(!fresh)sb.rpc("log_event",{p_attempt:aid,p_type:"reload_resume",p_detail:null,p_warn:false});
+}
+function buildWM(){
+ var t=((prof&&prof.full_name)||"")+" | "+((prof&&prof.roll_no)||"");
+ t=t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+ var svg='<svg xmlns="http://www.w3.org/2000/svg" width="300" height="190"><text x="20" y="110" font-size="20" font-family="Arial" fill="#888" fill-opacity="0.13" transform="rotate(-25 150 95)">'+t+'</text></svg>';
+ $("wm").style.backgroundImage='url("data:image/svg+xml,'+encodeURIComponent(svg)+'")';
+}
+function warnLabel(){$("x-warn").textContent="Warnings "+cur.warn+"/"+cur.mx}
+/* ---------- question view ---------- */
+function answered(q){var a=cur.ans[q.id]||{};return Number(q.marks)===1?!!a.o:!!(a.t&&a.t.trim())}
+function setAns(id,v){
+ cur.ans[id]=Object.assign(cur.ans[id]||{},v);cur.dirty[id]=1;
+ try{localStorage.setItem("tng_a_"+cur.aid,JSON.stringify(cur.ans))}catch(e){}
+}
+function renderQ(){
+ var q=cur.qs[cur.idx],box=$("qbox");box.textContent="";
+ $("qnum").textContent="Question "+(cur.idx+1)+" of "+cur.qs.length+" ("+q.marks+(Number(q.marks)===1?" mark":" marks")+")";
+ box.appendChild(el("div",q.text,"qt"));
+ var a=cur.ans[q.id]||{};
+ if(Number(q.marks)===1){
+  q.opts.forEach(function(L,i){
+   var o=el("button",null,"opt"+(a.o===L.toUpperCase()?" sel":""));o.type="button";
+   o.appendChild(el("b",String.fromCharCode(65+i)+". "));o.appendChild(document.createTextNode(q[L]||""));
+   o.onclick=function(){setAns(q.id,{o:L.toUpperCase()});renderQ()};
+   box.appendChild(o);
+  });
+ }else{
+  var t=document.createElement("textarea");t.rows=10;t.value=a.t||"";t.placeholder="Type your answer here";
+  t.setAttribute("autocomplete","off");t.setAttribute("spellcheck","false");
+  t.oninput=function(){setAns(q.id,{t:t.value});palette()};
+  box.appendChild(t);
+ }
+ $("prev").disabled=cur.idx===0;$("next").disabled=cur.idx===cur.qs.length-1;
+ palette();
+}
+function palette(){
+ var p=$("pal");p.textContent="";
+ cur.qs.forEach(function(q,i){
+  var b=el("button",String(i+1),(answered(q)?"a ":"")+(i===cur.idx?"c":""));b.type="button";
+  b.onclick=function(){cur.idx=i;renderQ()};p.appendChild(b);
+ });
+}
+$("prev").onclick=function(){if(cur.idx>0){cur.idx--;renderQ();window.scrollTo(0,0)}};
+$("next").onclick=function(){if(cur.idx<cur.qs.length-1){cur.idx++;renderQ();window.scrollTo(0,0)}};
+$("sub").onclick=function(){
+ var n=cur.qs.filter(function(q){return!answered(q)}).length;
+ modal("Submit exam?",(n?n+" question(s) not answered. ":"All questions answered. ")+"You cannot change answers after submitting.",[["Submit",function(){submit("submitted")},"btn red"],["Go back",null,"btn alt"]]);
+};
+/* ---------- timer, save, submit ---------- */
+function onTick(){
+ if(!cur||cur.done)return;
+ var left=Math.max(0,Math.round((cur.deadline-Date.now())/1000));
+ $("x-time").textContent=hms(left);
+ if(left<=0){modal("Time is up","Submitting your exam...",[]);submit("auto_submitted")}
+}
+function setNet(ok,m){$("x-net").textContent=ok?"":"Not saved to server yet ("+(m||"no internet")+"). Answers are kept on your phone."}
+async function autosave(){if(cur&&!cur.done){await flush();await save()}}
+async function save(){
+ if(!cur||cur.saving)return;
+ var ids=Object.keys(cur.dirty);if(!ids.length)return;
+ cur.saving=true;var snap={};
+ var arr=ids.map(function(id){var a=cur.ans[id]||{};snap[id]=JSON.stringify(a);return{q:id,t:a.t||"",o:a.o||""}});
+ var r=await sb.rpc("save_answers",{p_attempt:cur.aid,p_answers:arr});
+ if(!cur)return;cur.saving=false;
+ if(r.error){setNet(false,r.error.message);return}
+ setNet(true);
+ if(r.data&&r.data.saved===false&&r.data.status&&r.data.status!=="in_progress"){finish(r.data.status);return}
+ ids.forEach(function(id){if(JSON.stringify(cur.ans[id]||{})===snap[id])delete cur.dirty[id]});
+}
+async function submit(st){
+ if(!cur||cur.done)return;cur.done=true;
+ var arr=Object.keys(cur.ans).map(function(id){var a=cur.ans[id];return{q:id,t:a.t||"",o:a.o||""}});
+ var r=await sb.rpc("submit_exam",{p_attempt:cur.aid,p_answers:arr,p_status:st});
+ if(r.error){
+  cur.done=false;setNet(false);
+  if(st==="auto_submitted")setTimeout(function(){submit(st)},5000);
+  else msg("Submit failed. Check internet and try again.");
+  return;
+ }
+ finish(r.data.status);
+}
+function finish(status){
+ var aid=cur&&cur.aid;
+ clearInterval(tick);clearInterval(saver);
+ try{localStorage.removeItem("tng_active");if(aid)localStorage.removeItem("tng_a_"+aid)}catch(e){}
+ cur=null;exitFull();$("ov").hidden=true;
+ $("d-t").textContent=status==="auto_submitted"?"Exam auto-submitted":"Exam submitted";
+ $("d-p").textContent=status==="auto_submitted"?"Your exam was submitted automatically (time over or warning limit reached). Your answers are saved.":"Your answers are saved. Results will be shown after your teacher completes marking.";
+ show("v-done");
+}
+$("d-back").onclick=function(){show("v-list");loadList()};
+/* ---------- anti-cheat ---------- */
+async function flush(){
+ if(!cur||cur.done||!cur.pend.length)return;
+ while(cur&&cur.pend.length){
+  var ev=cur.pend[0];
+  var r=await sb.rpc("log_event",{p_attempt:cur.aid,p_type:ev.t,p_detail:ev.d||null,p_warn:ev.w});
+  if(!cur)return;
+  if(r.error)return;
+  cur.pend.shift();
+  if(r.data){if(r.data.status&&r.data.status!=="in_progress"){finish(r.data.status);return}
+   if(r.data.warnings>cur.warn){cur.warn=r.data.warnings;warnLabel()}}
+ }
+}
+function leave(type){
+ if(!cur||cur.done||Date.now()-lastL<2500)return;
+ lastL=Date.now();
+ cur.warn++;warnLabel();
+ cur.pend.push({t:type,w:true});flush();
+ if(cur.warn>=cur.mx){modal("Warning "+cur.warn+" of "+cur.mx,"Warning limit reached. Your exam is being submitted.",[]);submit("auto_submitted");return}
+ modal("Warning "+cur.warn+" of "+cur.mx,"Leaving the exam screen is recorded. At "+cur.mx+" warnings your exam is submitted automatically.",[["Back to exam",function(){goFull()}]]);
+}
+function note(type){
+ if(!cur||cur.done||Date.now()-lastC<5000)return;lastC=Date.now();
+ cur.pend.push({t:type,w:false});flush();
+}
+document.addEventListener("visibilitychange",function(){if(document.hidden)leave("tab_hidden")});
+window.addEventListener("blur",function(){leave("window_blur")});
+document.addEventListener("fullscreenchange",function(){if(!document.fullscreenElement&&fullOK&&cur&&!cur.done){fullOK=false;leave("fullscreen_exit")}});
+["copy","cut","paste","contextmenu","dragstart","drop"].forEach(function(n){
+ document.addEventListener(n,function(e){e.preventDefault();if(n==="copy"||n==="cut"||n==="paste")note(n+"_attempt")},true)});
+document.addEventListener("selectstart",function(e){if(!e.target||e.target.tagName!=="TEXTAREA")e.preventDefault()},true);
+document.addEventListener("beforeinput",function(e){if(e.inputType==="insertFromPaste"||e.inputType==="insertFromDrop"||e.inputType==="insertFromYank")e.preventDefault()},true);
+document.addEventListener("keydown",function(e){
+ var k=(e.key||"").toLowerCase();
+ if(((e.ctrlKey||e.metaKey)&&"cvxaspu".indexOf(k)>=0&&k.length===1)||k==="f12"||k==="printscreen"||(e.ctrlKey&&e.shiftKey&&(k==="i"||k==="j"||k==="c"))){e.preventDefault();note("blocked_key")}
+},true);
+/* ---------- init ---------- */
+$("refresh").onclick=loadList;
+$("out").onclick=async function(){await sb.auth.signOut();location.href="index.html"};
+(async function(){
+ var s=(await sb.auth.getSession()).data.session;
+ if(!s){location.href="index.html";return}
+ var p=(await sb.from("profiles").select("role,full_name,roll_no,section").eq("id",s.user.id).single()).data;
+ if(!p||p.role!=="student"){location.href="index.html";return}
+ prof=p;$("who").textContent=p.full_name+" | "+p.section;
+ document.body.hidden=false;
+ await loadList();
+ var act=null;try{act=localStorage.getItem("tng_active")}catch(e){}
+ if(act&&list.some(function(e){return e.attempt_id===act&&e.status==="in_progress"}))
+  modal("Exam in progress","You have an exam in progress. Continue it now.",[["Resume exam",function(){enter(act,false)}]]);
+})();
+})();
+</script></body></html>
