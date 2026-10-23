@@ -260,13 +260,19 @@ document.addEventListener("keydown",function(e){
 $("refresh").onclick=loadList;
 $("out").onclick=async function(){await sb.auth.signOut();location.href="index.html"};
 (async function(){
- var s=(await sb.auth.getSession()).data.session;
- if(!s){location.href="index.html";return}
- var p=(await sb.from("profiles").select("role,full_name,roll_no,section").eq("id",s.user.id).single()).data;
- if(!p||p.role!=="student"){location.href="index.html";return}
- prof=p;$("who").textContent=p.full_name+" | "+p.section;
- document.body.hidden=false;
- await loadList();
+ function fail(t){document.body.hidden=false;document.body.innerHTML='<div style="font-family:sans-serif;padding:24px;max-width:480px;margin:auto"><h2>Cannot open student page</h2><p style="color:#b3261e;word-break:break-word">'+String(t).replace(/</g,"&lt;")+'</p><button onclick="location.href=\'index.html\'" style="padding:12px 18px;font-size:16px">Back to login</button></div>'}
+ try{
+  var g=await sb.auth.getSession();
+  var s=g.data&&g.data.session;
+  if(!s){fail("Session not found. Login again. (If this repeats, browser is blocking storage: turn off Brave Shields / private mode.)");return}
+  var q=await sb.from("profiles").select("role,full_name,roll_no,section").eq("id",s.user.id).single();
+  if(q.error){fail("Profile error: "+q.error.message);return}
+  var p=q.data;
+  if(!p||p.role!=="student"){fail("This account is not a student account. Role: "+(p&&p.role));return}
+  prof=p;$("who").textContent=(p.full_name||"")+" | "+(p.section||"");
+  document.body.hidden=false;
+  await loadList();
+ }catch(err){fail("Error: "+(err&&err.message||err));return}
  var act=null;try{act=localStorage.getItem("tng_active")}catch(e){}
  if(act&&list.some(function(e){return e.attempt_id===act&&e.status==="in_progress"}))
   modal("Exam in progress","You have an exam in progress. Continue it now.",[["Resume exam",function(){enter(act,false)}]]);
