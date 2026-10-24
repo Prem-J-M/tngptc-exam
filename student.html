@@ -38,6 +38,9 @@ small{color:var(--muted);display:block}
 #ov .box{background:var(--card);border-radius:14px;padding:20px;max-width:420px;width:100%}
 #ov .btn{margin-top:10px;margin-right:8px}
 [hidden]{display:none!important}
+#tb{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));z-index:60;background:#12263f;color:#fff;border:2px solid #fff;border-radius:99px;padding:10px 22px;font-weight:700;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.35);pointer-events:none}
+#tb.hot{background:#b3261e}
+#tb[hidden]{display:none}
 </style></head><body hidden>
 <header id="hd"><b>TNGPTC Student</b><span id="who"></span><button id="out" type="button">Log out</button></header>
 <main>
@@ -53,6 +56,7 @@ small{color:var(--muted);display:block}
 <section id="v-done" hidden><div class="card"><h2 id="d-t">Exam submitted</h2><p id="d-p"></p><button class="btn" id="d-back" type="button">Back to my exams</button></div></section>
 </main>
 <div id="wm" hidden></div>
+<div id="tb" hidden role="status" aria-live="polite"></div>
 <div id="ov" hidden><div class="box"><h2 id="ov-t"></h2><p id="ov-p"></p><div id="ov-b"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
 <script>
@@ -194,11 +198,24 @@ $("sub").onclick=function(){
  var n=cur.qs.filter(function(q){return!answered(q)}).length;
  modal("Submit exam?",(n?n+" question(s) not answered. ":"All questions answered. ")+"You cannot change answers after submitting.",[["Submit",function(){submit("submitted")},"btn red"],["Go back",null,"btn alt"]]);
 };
+var tbT=null;
+function banner(t){
+ var b=$("tb");b.textContent=t+" min left";b.className=t<=5?"hot":"";b.hidden=false;
+ try{if(navigator.vibrate)navigator.vibrate(t<=5?[200,100,200]:200)}catch(e){}
+ clearTimeout(tbT);tbT=setTimeout(function(){b.hidden=true},4000);
+}
 /* ---------- timer, save, submit ---------- */
 function onTick(){
  if(!cur||cur.done)return;
  var left=Math.max(0,Math.round((cur.deadline-Date.now())/1000));
  $("x-time").textContent=hms(left);
+ if(left>0){
+  cur.warned=cur.warned||{};
+  [30,25,20,15,10,5,1].forEach(function(t){
+   var m=t*60;
+   if(left<=m&&!cur.warned[t]){cur.warned[t]=1;if(left>m-8)banner(t)}
+  });
+ }
  if(left<=0){modal("Time is up","Submitting your exam...",[]);submit("auto_submitted")}
 }
 function setNet(ok,m){$("x-net").textContent=ok?"":"Not saved to server yet ("+(m||"no internet")+"). Answers are kept on your phone."}
