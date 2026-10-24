@@ -42,7 +42,8 @@ small{color:var(--muted);display:block}
 <header id="hd"><b>TNGPTC Student</b><span id="who"></span><button id="out" type="button">Log out</button></header>
 <main>
 <div id="msg" hidden></div>
-<section id="v-list"><div class="card"><h2>My exams</h2><div id="elist"></div><button class="btn alt" id="refresh" type="button" style="margin-top:12px">Refresh</button></div></section>
+<section id="v-list"><div class="card"><h2>My exams</h2><div id="elist"></div><button class="btn alt" id="refresh" type="button" style="margin-top:12px">Refresh</button></div>
+<div class="card"><h2>My results</h2><div id="rlist"></div></div></section>
 <section id="v-exam" hidden>
 <div class="bar"><span id="x-name"></span><b id="x-time">--:--</b><span id="x-warn" class="pill"></span></div>
 <div class="card"><small id="qnum"></small><div id="qbox"></div><small id="x-net"></small></div>
@@ -73,7 +74,23 @@ function exitFull(){fullOK=false;try{if(document.fullscreenElement)document.exit
 async function loadList(){
  var r=await sb.rpc("my_exams");
  if(r.error){msg(clean(r.error));return}
- list=r.data||[];listT=Date.now();renderList();
+ list=r.data||[];listT=Date.now();renderList();loadResults();
+}
+var resT=0;
+async function loadResults(force){
+ if(!force&&Date.now()-resT<60000)return;
+ var r=await sb.rpc("my_results");
+ if(r.error)return;
+ resT=Date.now();
+ var box=$("rlist");box.textContent="";var d=r.data||[];
+ if(!d.length){box.appendChild(el("small","No results published yet."));return}
+ d.forEach(function(x){
+  var row=el("div",null,"item"),l=el("div");
+  l.appendChild(el("b",x.exam));
+  l.appendChild(el("small",(x.subject||"")+" | "+fmt(x.date)));
+  row.appendChild(l);
+  var m=Math.round(Number(x.mark)*10)/10,t=Math.round(Number(x.total)*10)/10;
+  row.appendChild(el("b",m+" / "+t));box.appendChild(row)});
 }
 function renderList(){
  var box=$("elist");box.textContent="";
@@ -257,7 +274,7 @@ document.addEventListener("keydown",function(e){
  if(((e.ctrlKey||e.metaKey)&&"cvxaspu".indexOf(k)>=0&&k.length===1)||k==="f12"||k==="printscreen"||(e.ctrlKey&&e.shiftKey&&(k==="i"||k==="j"||k==="c"))){e.preventDefault();note("blocked_key")}
 },true);
 /* ---------- init ---------- */
-$("refresh").onclick=loadList;
+$("refresh").onclick=function(){resT=0;loadList()};
 $("out").onclick=async function(){await sb.auth.signOut();location.href="index.html"};
 (async function(){
  var s=(await sb.auth.getSession()).data.session;
