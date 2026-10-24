@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Results | TNGPTC Exam Portal</title>
+<style>
+:root{--bg:#eef1f6;--card:#fff;--text:#14213d;--muted:#5b6578;--line:#d3d9e4;--brand:#12263f;--bt:#fff;--err:#b3261e;--errbg:#fdecea;--ok:#1b6b3a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#16202f;--text:#e8edf5;--muted:#9aa6ba;--line:#2a374b;--brand:#e8edf5;--bt:#12263f;--err:#ff8a80;--errbg:#3a1d1d;--ok:#6fd28f;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--brand);color:var(--bt)}
+header a{color:inherit;border:1px solid currentColor;border-radius:8px;padding:6px 12px;text-decoration:none}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:18px}label{display:block;font-size:14px;font-weight:600;margin:10px 0 4px}
+select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.btn{margin-top:12px;margin-right:8px;padding:10px 16px;border:0;border-radius:8px;background:var(--brand);color:var(--bt);font:inherit;font-weight:600;cursor:pointer}
+.btn.alt{background:none;color:var(--text);border:1px solid var(--line)}.btn:disabled{opacity:.45}.sm{margin:0;padding:6px 10px;font-size:13px}
+small{color:var(--muted);display:block}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);white-space:nowrap}th{border-top:0;color:var(--muted)}
+tr.abs td{color:var(--err);background:var(--errbg);font-weight:600}
+#msg{position:sticky;top:0;z-index:5;margin-bottom:10px;padding:10px 12px;border-radius:8px;font-weight:600;background:var(--card);border:1px solid var(--line)}
+.e{color:var(--err)}.o{color:var(--ok)}
+.ans{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0}
+.foot{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));margin:0 -16px -16px}
+.foot .btn{margin-top:8px}
+</style></head><body hidden>
+<header><b>Results</b><a href="teacher.html">Exams</a></header>
+<main><div id="msg" hidden></div>
+<section id="v-res">
+<div class="card"><h2>Result</h2>
+<label for="r-sub">Subject</label><select id="r-sub"></select>
+<label for="r-exam">Exam name</label><select id="r-exam"></select>
+<small id="r-info"></small></div>
+<div class="card" id="c-tab" hidden>
+<div id="r-sum"></div>
+<div class="scroll"><table><thead><tr><th>No.</th><th>Roll no</th><th>Name</th><th>Mark</th><th></th></tr></thead><tbody id="r-body"></tbody></table></div>
+<button class="btn alt" id="r-dl" type="button">Download</button>
+<button class="btn" id="r-pub" type="button"></button></div>
+</section>
+<section id="v-mark" hidden>
+<div class="card"><button class="btn alt sm" id="m-back" type="button">Back to results</button>
+<h2 id="m-title" style="margin-top:12px"></h2><small id="m-sub"></small></div>
+<div id="m-items"></div>
+<div class="foot"><div id="m-count"></div><small id="m-total"></small>
+<button class="btn" id="m-save" type="button" disabled>Save</button>
+<button class="btn" id="m-next" type="button" disabled>Save &amp; Next</button></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var sb=window.supabase.createClient("https://trunjmpvfdrxemjrndck.supabase.co","sb_publishable_COevBDyL8fdCHJuIpEHGVA_mwPcIrKv");
+var exams=[],data=null,rows=[],cur=-1,items=[];
+function el(t,x,c){var e=document.createElement(t);if(x!=null)e.textContent=x;if(c)e.className=c;return e}
+function msg(t,ok){var m=$("msg");m.textContent=t;m.className=ok?"o":"e";m.hidden=false;setTimeout(function(){m.hidden=true},6000)}
+function fmt(n){return String(Math.round(Number(n)*10)/10)}
+function opt(s,v,t){var o=document.createElement("option");o.value=v;o.textContent=t;s.appendChild(o)}
+function dt(x){try{return new Date(x).toLocaleString()}catch(e){return ""}}
+
+async function loadExams(){
+ var r=await sb.from("exams").select("id,name,subject,section,start_time").order("start_time",{ascending:false});
+ if(r.error){msg("Could not load exams");return}
+ exams=r.data||[];
+ var s=$("r-sub");s.textContent="";opt(s,"","Select subject");
+ var seen={};exams.forEach(function(e){if(!seen[e.subject]){seen[e.subject]=1;opt(s,e.subject,e.subject)}});
+ fillExams();
+}
+function fillExams(){
+ var sub=$("r-sub").value,s=$("r-exam");s.textContent="";opt(s,"","Select exam");
+ exams.filter(function(e){return e.subject===sub}).forEach(function(e){opt(s,e.id,e.name+" ("+e.section+")")});
+ $("r-info").textContent="";$("c-tab").hidden=true;
+}
+$("r-sub").onchange=fillExams;
+$("r-exam").onchange=function(){var id=$("r-exam").value;if(!id){$("c-tab").hidden=true;$("r-info").textContent="";return}loadResult(id)};
+
+async function loadResult(id){
+ var r=await sb.rpc("result_list",{p_exam:id});
+ if(r.error){msg(r.error.message||"Failed");return}
+ data=r.data;rows=data.rows||[];draw();
+}
+function draw(){
+ var ex=data.exam,tot=data.total;
+ $("r-info").textContent="Exam date: "+dt(ex.start_time)+"  |  Section: "+ex.section;
+ $("c-tab").hidden=false;
+ var att=0,marked=0;rows.forEach(function(x){if(x.attended)att++;if(x.attended&&x.marking_done)marked++});
+ $("r-sum").textContent="Students: "+rows.length+"  |  Attended: "+att+"  |  Absent: "+(rows.length-att)+"  |  Marked: "+marked+" of "+att;
+ var b=$("r-body");b.textContent="";
+ rows.forEach(function(x,i){
+  var tr=document.createElement("tr");
+  tr.appendChild(el("td",i+1));tr.appendChild(el("td",x.roll_no||""));tr.appendChild(el("td",x.name||""));
+  var m=el("td"),a=el("td");
+  if(!x.attended){tr.className="abs";m.textContent="Absent"}
+  else if(x.status==="in_progress"){m.textContent="Writing"}
+  else if(x.marking_done){m.textContent=fmt(x.mark)+" / "+fmt(tot);}
+  else{m.textContent=""}
+  if(x.attended&&x.status!=="in_progress"){
+   var bt=el("button",x.marking_done?"Edit":"Correct","btn alt sm");bt.type="button";
+   bt.onclick=function(){openMark(i)};a.appendChild(bt)}
+  tr.appendChild(m);tr.appendChild(a);b.appendChild(tr)});
+ $("r-pub").textContent=ex.published?"Unpublish marks":"Publish marks to students";
+}
+
+function q(v){v=String(v==null?"":v);if(/^[=+\-@]/.test(v))v="'"+v;return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+$("r-dl").onclick=function(){
+ if(!data)return;
+ var L=[["No","Roll no","Name","Status","Mark","Total"]];
+ rows.forEach(function(x,i){
+  var st=!x.attended?"Absent":(x.status==="in_progress"?"Writing":"Attended");
+  var mk=(x.attended&&x.marking_done)?fmt(x.mark):"";
+  L.push([i+1,x.roll_no,x.name,st,mk,fmt(data.total)])});
+ var csv="\ufeff"+L.map(function(r){return r.map(q).join(",")}).join("\r\n");
+ var blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ var a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download=(data.exam.name+"_"+data.exam.section).replace(/[^A-Za-z0-9_-]+/g,"_")+".csv";
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
+};
+$("r-pub").onclick=async function(){
+ if(!data)return;
+ var want=!data.exam.published;
+ if(want){
+  var pend=rows.filter(function(x){return x.attended&&!x.marking_done}).length;
+  if(pend&&!confirm(pend+" student(s) are not marked yet. They will see nothing until you mark them. Publish anyway?"))return;
+ }
+ var id=$("r-exam").value;this.disabled=true;
+ var r=await sb.rpc("publish_results",{p_exam:id,p_pub:want});
+ this.disabled=false;
+ if(r.error){msg(r.error.message||"Failed");return}
+ msg(want?"Marks published to students":"Marks hidden from students",true);loadResult(id);
+};
+
+async function openMark(i){
+ cur=i;var x=rows[i];
+ var r=await sb.rpc("get_marking",{p_attempt:x.attempt_id});
+ if(r.error){msg(r.error.message||"Failed");return}
+ items=r.data.items||[];
+ if(!items.length){msg("No written questions to correct for this student");return}
+ $("m-title").textContent=(r.data.name||"")+" ("+(r.data.roll_no||"")+")";
+ $("m-sub").textContent="Written questions only. Multiple choice is marked automatically.";
+ var box=$("m-items");box.textContent="";
+ items.forEach(function(it,k){
+  var c=el("div",null,"card");
+  c.appendChild(el("h2","Q"+it.pos+"  ("+fmt(it.max)+" marks)"));
+  c.appendChild(el("div",it.text||""));
+  var an=el("div",it.answer?it.answer:"(no answer written)","ans");if(!it.answer)an.style.opacity=".6";c.appendChild(an);
+  var lb=el("label","Marks");lb.htmlFor="mk"+k;c.appendChild(lb);
+  var s=document.createElement("select");s.id="mk"+k;opt(s,"","Select marks");
+  for(var v=0;v<=Number(it.max)+1e-9;v+=0.5)opt(s,String(v),fmt(v));
+  if(it.awarded!=null)s.value=String(Number(it.awarded));
+  s.onchange=upd;c.appendChild(s);box.appendChild(c)});
+ $("v-res").hidden=true;$("v-mark").hidden=false;window.scrollTo(0,0);upd();
+}
+function upd(){
+ var n=0,t=0;
+ items.forEach(function(it,k){var v=$("mk"+k).value;if(v!==""){n++;t+=Number(v)}});
+ $("m-count").textContent="Marked "+n+" of "+items.length;
+ $("m-total").textContent="Written total: "+fmt(t);
+ var ok=(n===items.length);$("m-save").disabled=!ok;$("m-next").disabled=!ok;
+}
+async function save(next){
+ var arr=items.map(function(it,k){return{q:it.qid,m:Number($("mk"+k).value)}});
+ $("m-save").disabled=true;$("m-next").disabled=true;
+ var r=await sb.rpc("save_marks",{p_attempt:rows[cur].attempt_id,p_marks:arr});
+ if(r.error){msg(r.error.message||"Failed");upd();return}
+ msg("Saved",true);
+ var id=$("r-exam").value,from=cur;
+ await loadResult(id);
+ if(next){
+  for(var j=from+1;j<rows.length;j++){
+   if(rows[j].attended&&rows[j].status!=="in_progress"&&!rows[j].marking_done){await openMark(j);return}}
+  msg("No more students to correct",true);
+ }
+ $("v-mark").hidden=true;$("v-res").hidden=false;
+}
+$("m-save").onclick=function(){save(false)};
+$("m-next").onclick=function(){save(true)};
+$("m-back").onclick=function(){$("v-mark").hidden=true;$("v-res").hidden=false;loadResult($("r-exam").value)};
+
+(async function(){
+ var s=(await sb.auth.getSession()).data.session;
+ if(!s){location.href="index.html";return}
+ var p=(await sb.from("profiles").select("role").eq("id",s.user.id).single()).data;
+ if(!p||(p.role!=="teacher"&&p.role!=="admin")){location.href="index.html";return}
+ document.body.hidden=false;loadExams();
+})();
+})();
+</script></body></html>
