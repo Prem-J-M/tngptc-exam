@@ -1,27 +1,46 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Live monitor | TNGPTC Exam Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
-:root{--bg:#eef1f6;--card:#fff;--text:#14213d;--muted:#5b6578;--line:#d3d9e4;--brand:#12263f;--bt:#fff;--err:#b3261e;--errbg:#fdecea;--ok:#1b6b3a;--okbg:#e6f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--info:#1a4f9c;--infobg:#e3edfb;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#16202f;--text:#e8edf5;--muted:#9aa6ba;--line:#2a374b;--brand:#e8edf5;--bt:#12263f;--err:#ff8a80;--errbg:#3a1d1d;--ok:#6fd28f;--okbg:#17301f;--warn:#ffd36e;--warnbg:#3a3014;--info:#8fb8ff;--infobg:#15284a;color-scheme:dark}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5}
-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--brand);color:var(--bt)}
-header a{color:inherit;border:1px solid currentColor;border-radius:8px;padding:6px 12px;text-decoration:none}
-header span{display:flex;gap:8px;flex-wrap:wrap}
+:root{--bg:#f4f6fb;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#1e1b4b;--brand2:#312e81;--bt:#fff;--accent:#d97706;--accent-l:#fef3c7;--err:#dc2626;--errbg:#fef2f2;--ok:#16a34a;--okbg:#f0fdf4;--warn:#b45309;--warnbg:#fff4d6;--info:#3730a3;--infobg:#e0e7ff;--glow:rgba(217,119,6,.35);--shadow:0 12px 30px -10px rgba(30,27,75,.25),0 0 0 1px rgba(30,27,75,.05);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0b0f19;--card:#141c2e;--text:#f1f5f9;--muted:#94a3b8;--line:#1e293b;--brand:#fbbf24;--brand2:#f59e0b;--bt:#0f172a;--accent:#fbbf24;--accent-l:rgba(251,191,36,.15);--err:#f87171;--errbg:#3a1d1d;--ok:#4ade80;--okbg:#14301e;--warn:#fcd34d;--warnbg:#3a3014;--info:#a5b4fc;--infobg:#1e2457;--glow:rgba(251,191,36,.3);--shadow:0 12px 30px -10px rgba(0,0,0,.6),0 0 0 1px rgba(251,191,36,.1);color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 92% 4%,rgba(217,119,6,.12),transparent 38%),radial-gradient(circle at 4% 96%,rgba(49,46,129,.14),transparent 40%),var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;border-bottom:3px solid #fbbf24;box-shadow:0 6px 20px -8px rgba(30,27,75,.6)}
+header b{font-weight:800}
+header a,header button{color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(251,191,36,.7);border-radius:10px;padding:7px 14px;text-decoration:none;font:inherit;font-weight:600;cursor:pointer}
+header a:hover,header button:hover{background:rgba(251,191,36,.25)}
+#who{color:#fde68a;font-weight:600}
 main{max-width:760px;margin:0 auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
-h2{margin:0 0 10px;font-size:18px}label{display:block;font-size:14px;font-weight:600;margin:10px 0 4px}
-select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.card{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+h2{margin:0 0 12px;font-size:19px;font-weight:800;color:var(--brand)}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 5px}
+input,select,textarea{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px var(--glow)}
+.btn{margin-top:12px;margin-right:8px;padding:11px 18px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--brand2),var(--brand));color:var(--bt);font:inherit;font-weight:700;cursor:pointer;box-shadow:0 8px 18px -6px rgba(30,27,75,.5),0 0 14px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn:active{transform:translateY(1px)}
+.btn.alt{background:none;color:var(--text);border:1.5px solid var(--line);box-shadow:none}
+.btn.red{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;box-shadow:0 8px 18px -6px rgba(185,28,28,.55)}
+.btn:disabled{opacity:.5;box-shadow:none}
+.sm{margin:0;padding:7px 12px;font-size:13px}
+.item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
 small{color:var(--muted);display:block}
-.cnt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.cnt div{border-radius:10px;padding:8px;text-align:center;border:1px solid var(--line)}
-.cnt b{display:block;font-size:22px}.cnt span{font-size:12px}
-.c-ok{background:var(--okbg);color:var(--ok)}.c-info{background:var(--infobg);color:var(--info)}.c-warn{background:var(--warnbg);color:var(--warn)}.c-err{background:var(--errbg);color:var(--err)}
+.pill{font-size:12px;font-weight:700;border:1px solid var(--accent);color:var(--accent);background:var(--accent-l);border-radius:99px;padding:2px 10px}
+#msg{position:sticky;top:0;z-index:5;margin-bottom:10px;padding:11px 14px;border-radius:12px;font-weight:600;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);box-shadow:var(--shadow)}
+.e{color:var(--err)}.o{color:var(--ok)}
+[hidden]{display:none!important}
 .scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);white-space:nowrap}th{border-top:0;color:var(--muted)}
-tr.s-ok td{background:var(--okbg)}tr.s-info td{background:var(--infobg)}tr.s-warn td{background:var(--warnbg);font-weight:600}tr.s-err td{background:var(--errbg);color:var(--err);font-weight:600}tr.s-gray td{color:var(--muted)}
-#msg{position:sticky;top:0;z-index:5;margin-bottom:10px;padding:10px 12px;border-radius:8px;font-weight:600;background:var(--card);border:1px solid var(--line);color:var(--err)}
-.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;font-size:12px}.legend i{font-style:normal;border-radius:99px;padding:1px 8px}
+th,td{text-align:left;padding:10px 8px;border-top:1px solid var(--line);white-space:nowrap}
+th{border-top:0;color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.cnt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.cnt div{border-radius:14px;padding:10px 6px;text-align:center;border:1px solid var(--line);box-shadow:0 2px 8px -4px rgba(30,27,75,.3)}
+.cnt b{display:block;font-size:24px;font-weight:800}.cnt span{font-size:12px;font-weight:600}
+.c-ok{background:var(--okbg);color:var(--ok)}.c-info{background:var(--infobg);color:var(--info)}.c-warn{background:var(--warnbg);color:var(--warn)}.c-err{background:var(--errbg);color:var(--err)}
+tr.s-ok td{background:var(--okbg)}tr.s-info td{background:var(--infobg)}tr.s-warn td{background:var(--warnbg);font-weight:700}tr.s-err td{background:var(--errbg);color:var(--err);font-weight:700}tr.s-gray td{color:var(--muted)}
+#msg{color:var(--err)}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:12px;font-weight:600}.legend i{font-style:normal;border-radius:99px;padding:2px 10px}
+header span{display:flex;gap:8px;flex-wrap:wrap}
 </style></head><body hidden>
 <header><b>Live monitor</b><span><a href="teacher.html">Exams</a><a href="results.html">Results</a></span></header>
 <main><div id="msg" hidden></div>
