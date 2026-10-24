@@ -61,6 +61,15 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @media (max-width:760px){.feats{display:none}}
 @media (prefers-reduced-motion:reduce){.card{animation:none}}
+
+.pw{position:relative}
+.pw input{padding-right:52px}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;background:none;color:var(--muted);cursor:pointer;display:grid;place-items:center;border-radius:10px}
+.eye:hover{color:var(--accent)}
+.eye svg{width:22px;height:22px;fill:currentColor}
+.eye .hd{display:none}
+.eye.on .hd{display:inline}
+.eye.on{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -86,7 +95,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
           <input id="l-id" autocomplete="username" inputmode="text">
           <div class="err" id="l-iderr"></div>
           <label for="l-pw" id="l-pwlabel">Enter Student Password</label>
-          <input id="l-pw" type="password" autocomplete="current-password">
+          <div class="pw"><input id="l-pw" type="password" autocomplete="current-password"><button type="button" class="eye" data-eye="l-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="sh" d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.100 11-7c-1.700-3.900-6-7-11-7Zm0 11.500a4.500 4.500 0 1 1 0-9 4.500 4.500 0 0 1 0 9Zm0-7a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5Z"/><path class="hd" d="M3 4.4 4.4 3 21 19.6 19.6 21Z"/></svg></button></div>
           <div class="err" id="l-pwerr"></div>
           <button class="btn" type="submit">Log in</button>
         </form>
@@ -105,7 +114,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
           <label for="r-sec">Student section</label>
           <select id="r-sec"><option value="">Select section</option></select><div class="err" id="r-secerr"></div>
           <label for="r-phone">Student phone no.</label><input id="r-phone" type="tel" inputmode="numeric" maxlength="10"><div class="err" id="r-phoneerr"></div>
-          <label for="r-pw">Create password</label><input id="r-pw" type="password" autocomplete="new-password"><div class="err" id="r-pwerr"></div>
+          <label for="r-pw">Create password</label><div class="pw"><input id="r-pw" type="password" autocomplete="new-password"><button type="button" class="eye" data-eye="r-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="sh" d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.100 11-7c-1.700-3.900-6-7-11-7Zm0 11.500a4.500 4.500 0 1 1 0-9 4.500 4.500 0 0 1 0 9Zm0-7a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5Z"/><path class="hd" d="M3 4.4 4.4 3 21 19.6 19.6 21Z"/></svg></button></div><div class="err" id="r-pwerr"></div>
           <button class="btn" type="submit">Register</button>
         </form>
         <div class="row"><button class="link" type="button" data-back>Back to login</button></div>
@@ -236,6 +245,13 @@ $("f-reg").onsubmit=async function(e){
  }catch(e){}
 })();
 })();
+</script>
+<script>
+document.querySelectorAll("[data-eye]").forEach(function(b){b.addEventListener("click",function(){
+ var i=document.getElementById(b.getAttribute("data-eye")),show=i.type==="password";
+ i.type=show?"text":"password";b.classList.toggle("on",show);
+ b.setAttribute("aria-pressed",show?"true":"false");b.setAttribute("aria-label",show?"Hide password":"Show password");
+ i.focus()})});
 </script>
 </body>
 </html>
