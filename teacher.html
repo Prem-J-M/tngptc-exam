@@ -6,6 +6,7 @@
 @media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#16202f;--text:#e8edf5;--muted:#9aa6ba;--line:#2a374b;--brand:#e8edf5;--bt:#12263f;--err:#ff8a80;--ok:#6fd28f;color-scheme:dark}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5}
 header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--brand);color:var(--bt)}
+header a{color:inherit;border:1px solid currentColor;border-radius:8px;padding:6px 12px;text-decoration:none}
 header button{background:none;border:1px solid currentColor;color:inherit;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
 main{max-width:720px;margin:0 auto;padding:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
@@ -19,7 +20,7 @@ small{color:var(--muted);display:block}.pill{font-size:12px;border:1px solid var
 #msg{position:sticky;top:0;z-index:5;margin-bottom:10px;padding:10px 12px;border-radius:8px;font-weight:600;background:var(--card);border:1px solid var(--line)}
 .e{color:var(--err)}.o{color:var(--ok)}
 </style></head><body hidden>
-<header><b>TNGPTC Teacher</b><span id="who"></span><button id="out" type="button">Log out</button></header>
+<header><b>TNGPTC Teacher</b><span id="who"></span><a href="results.html" class="hl">Results</a><button id="out" type="button">Log out</button></header>
 <main><div id="msg" hidden></div>
 <section id="v-list">
 <form class="card" id="f-exam" novalidate><h2>Create exam</h2>
