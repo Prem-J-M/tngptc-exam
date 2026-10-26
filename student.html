@@ -1,4 +1,11 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<script>
+function tngShow(t){var b=document.body;if(!b||!b.hidden)return;b.hidden=false;b.style.cssText="padding:24px;font:16px system-ui;white-space:pre-wrap";b.textContent=t}
+window.onerror=function(m,u,l){tngShow("Error: "+m+" (line "+l+")")};
+window.addEventListener("unhandledrejection",function(e){tngShow("Error: "+(e.reason&&e.reason.message||e.reason))});
+setTimeout(function(){tngShow("Page did not start. Slow internet, or the file is incomplete. Reload once. If it stays like this, upload student.html again.")},10000);
+</script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Student | TNGPTC Exam Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -279,13 +286,4 @@ async function flush(){
 function leave(type){
  if(!cur||cur.done||Date.now()-lastL<2500)return;
  lastL=Date.now();
- cur.warn++;warnLabel();
- cur.pend.push({t:type,w:true});flush();
- if(cur.warn>=cur.mx){modal("Warning "+cur.warn+" of "+cur.mx,"Warning limit reached. Your exam is being submitted.",[]);submit("auto_submitted");return}
- modal("Warning "+cur.warn+" of "+cur.mx,"Leaving the exam screen is recorded. At "+cur.mx+" warnings your exam is submitted automatically.",[["Back to exam",function(){goFull()}]]);
-}
-function note(type){
- if(!cur||cur.done||Date.now()-lastC<5000)return;lastC=Date.now();
- cur.pend.push({t:type,w:false});flush();
-}
-document.addEvent
+ cur.warn++
