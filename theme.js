@@ -22,17 +22,17 @@ T.forEach(function(t){
 css+=
 'html:root[data-pt] body{background:radial-gradient(circle at 90% 6%,var(--g1),transparent 42%),radial-gradient(circle at 6% 94%,var(--g2),transparent 44%),var(--bg)!important;background-attachment:fixed!important;color:var(--text)}'+
 'html:root[data-pt] header,html:root[data-pt] #hd{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--h1),var(--h2),var(--h1))!important;background-size:200% 100%!important;animation:ptflow 9s ease-in-out infinite;color:#fff!important;border-bottom:3px solid var(--accent)!important;box-shadow:0 8px 26px -8px var(--glow)!important}'+
-'html:root[data-pt] header::after,html:root[data-pt] #hd::after{content:"";position:absolute;top:0;left:-60%;width:35%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:ptshine 5s ease-in-out infinite;pointer-events:none}'+
+'html:root[data-pt] header::after,html:root[data-pt] #hd::after{content:"";position:absolute;top:0;left:-60%;width:35%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-20deg);animation:ptshine 7s ease-in-out infinite;pointer-events:none}'+
 'html:root[data-pt] header a,html:root[data-pt] header button,html:root[data-pt] #hd button{border-color:var(--accent)!important;color:#fff!important}'+
 'html:root[data-pt] .side{background:linear-gradient(150deg,var(--h1),var(--h2),var(--h1))!important;background-size:200% 200%!important;animation:ptflow 10s ease-in-out infinite}'+
-'html:root[data-pt] .card{border-top-color:var(--accent)!important;box-shadow:var(--shadow),0 0 24px -8px var(--glow)!important}'+
-'html:root[data-pt] .btn:not(.alt):not(.red){position:relative;overflow:hidden;background:linear-gradient(135deg,var(--brand2),var(--brand))!important;color:var(--bt)!important;box-shadow:0 8px 20px -6px var(--glow),0 0 16px var(--glow),inset 0 1px 0 rgba(255,255,255,.4)!important}'+
-'html:root[data-pt] .btn:not(.alt):not(.red)::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:ptshine 4.5s ease-in-out infinite;pointer-events:none}'+
+'html:root[data-pt] .card{border-top-color:var(--accent)!important;box-shadow:var(--shadow),0 0 14px -8px var(--glow)!important}'+
+'html:root[data-pt] .btn:not(.alt):not(.red){position:relative;overflow:hidden;background:linear-gradient(135deg,var(--brand2),var(--brand))!important;color:var(--bt)!important;box-shadow:0 6px 14px -6px var(--glow),0 0 6px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)!important}'+
+'html:root[data-pt] .btn:not(.alt):not(.red)::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-20deg);animation:ptshine 6s ease-in-out infinite;pointer-events:none}'+
 'html:root[data-pt] button:not(.btn):not(#ptb):not(.ptsw):not([class]):not([id]){color:inherit}'+
 'html:root[data-pt] a{color:var(--brand)}html:root[data-pt] header a{color:#fff}'+
 '@keyframes ptshine{0%,55%{left:-70%}100%{left:130%}}@keyframes ptflow{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}'+
 '@keyframes ptgold{0%{background-position:0 0}100%{background-position:300% 0}}'+
-'#ptb{position:fixed;right:12px;bottom:14px;width:42px;height:42px;border-radius:50%;border:2px solid var(--accent);background:linear-gradient(135deg,var(--brand2),var(--brand));color:var(--bt);font-size:20px;line-height:1;cursor:pointer;z-index:2147483000;box-shadow:0 0 16px var(--glow),0 6px 14px rgba(0,0,0,.3);padding:0}'+
+'#ptb{position:fixed;right:12px;bottom:14px;width:42px;height:42px;border-radius:50%;border:2px solid var(--accent);background:linear-gradient(135deg,var(--brand2),var(--brand));color:var(--bt);font-size:20px;line-height:1;cursor:pointer;z-index:2147483000;box-shadow:0 0 8px var(--glow),0 4px 10px rgba(0,0,0,.3);padding:0}'+
 '#ptp{position:fixed;right:12px;bottom:64px;width:min(300px,calc(100vw - 24px));background:var(--card);color:var(--text);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:18px;padding:12px;z-index:2147483000;box-shadow:0 18px 40px -10px rgba(0,0,0,.5),0 0 24px -6px var(--glow);display:none}'+
 '#ptp.on{display:block}#ptp h4{margin:0 0 10px;font:700 14px system-ui,sans-serif;color:var(--text)}'+
 '#ptg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}'+
@@ -41,7 +41,7 @@ css+=
 '.ptsw.sel i{border-color:var(--text);box-shadow:0 0 0 2px var(--accent),0 0 14px var(--glow)}.ptsw.sel{color:var(--text)}'+
 '#ptc{display:block;width:100%;text-align:center;font:800 13px/1.4 system-ui,sans-serif;letter-spacing:.06em;padding:16px 8px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,var(--brand),var(--accent),var(--brand2),var(--accent),var(--brand));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:ptgold 3s linear infinite;filter:drop-shadow(0 0 5px var(--glow));-webkit-user-select:none;user-select:none}'+
 'html:root[data-pt] header #who,html:root[data-pt] #hd #who{display:none!important}'+
-'#ptc.in{display:inline-block;width:auto;max-width:100%;white-space:nowrap;padding:0 6px;font-size:12px;background:linear-gradient(90deg,#fff,var(--accent),#fff,var(--accent),#fff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 4px var(--glow))}'+
+'#ptc.in{display:inline-block;width:auto;max-width:100%;white-space:nowrap;padding:0 6px;font-size:12px;background:linear-gradient(90deg,#fff,var(--accent),#fff,var(--accent),#fff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;filter:none;animation-duration:9s}'+
 '#ptc.fx{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))}';
 var st=document.createElement("style");st.id="pt-style";st.textContent=css;
 (document.head||de).appendChild(st);
