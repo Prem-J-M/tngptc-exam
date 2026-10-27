@@ -45,6 +45,7 @@ header span{display:flex;gap:8px;flex-wrap:wrap}
 <header><b>Live monitor</b><span><a href="teacher.html">Exams</a><a href="results.html">Results</a></span></header>
 <main><div id="msg" hidden></div>
 <div class="card"><h2>Select exam</h2>
+<label for="m-sub">Subject</label><select id="m-sub"></select>
 <label for="m-exam">Exam</label><select id="m-exam"></select>
 <label for="m-filter">Show</label><select id="m-filter"><option value="all">All students</option><option value="warn">Only with warnings</option><option value="live">Only writing now</option><option value="no">Only not started / absent</option></select>
 <small id="m-info"></small></div>
@@ -71,10 +72,17 @@ async function loadExams(){
  var r=await sb.from("exams").select("id,name,subject,section,start_time").order("start_time",{ascending:false});
  if(r.error){msg("Could not load exams");return}
  exams=r.data||[];
- var s=$("m-exam");s.textContent="";
- var o=document.createElement("option");o.value="";o.textContent="Select exam";s.appendChild(o);
- exams.forEach(function(e){var o=document.createElement("option");o.value=e.id;o.textContent=e.name+" ("+e.section+") - "+e.subject+" - "+dt(e.start_time);s.appendChild(o)});
+ var s=$("m-sub");s.textContent="";opt(s,"","Select subject");
+ var seen={};exams.forEach(function(e){var k=e.subject||"";if(!seen[k]){seen[k]=1;opt(s,k,k||"General")}});
+ fillExams();
 }
+function opt(s,v,t){var o=document.createElement("option");o.value=v;o.textContent=t;s.appendChild(o)}
+function fillExams(){
+ var sub=$("m-sub").value,s=$("m-exam");s.textContent="";opt(s,"","Select exam");
+ if(sub!=="")exams.forEach(function(e){if((e.subject||"")===sub)opt(s,e.id,e.name+" ("+e.section+") - "+dt(e.start_time))});
+ s.onchange();
+}
+$("m-sub").onchange=fillExams;
 $("m-exam").onchange=function(){
  data=null;clearInterval(timer);$("c-mon").hidden=true;$("m-info").textContent="";
  if(!$("m-exam").value)return;
