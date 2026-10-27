@@ -41,6 +41,7 @@ css+=
 '.ptsw.sel i{border-color:var(--text);box-shadow:0 0 0 2px var(--accent),0 0 14px var(--glow)}.ptsw.sel{color:var(--text)}'+
 '#ptc{display:block;width:100%;text-align:center;font:800 13px/1.4 system-ui,sans-serif;letter-spacing:.06em;padding:16px 8px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,var(--brand),var(--accent),var(--brand2),var(--accent),var(--brand));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:ptgold 3s linear infinite;filter:drop-shadow(0 0 5px var(--glow));-webkit-user-select:none;user-select:none}'+
 'html:root[data-pt] header #who,html:root[data-pt] #hd #who{display:none!important}'+
+'#ptc.in{display:inline-block;width:auto;max-width:100%;white-space:nowrap;padding:0 6px;font-size:12px;background:linear-gradient(90deg,#fff,var(--accent),#fff,var(--accent),#fff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 4px var(--glow))}'+
 '#ptc.fx{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))}';
 var st=document.createElement("style");st.id="pt-style";st.textContent=css;
 (document.head||de).appendChild(st);
@@ -69,8 +70,11 @@ function build(){
  b.addEventListener("click",function(e){e.stopPropagation();p.classList.toggle("on")});
  document.addEventListener("click",function(e){if(!p.contains(e.target)&&e.target!==b)p.classList.remove("on")});
  var c=document.createElement("div");c.id="ptc";c.textContent="\u2728 Created by Prem J \u00B7 D2 \u2728";
- if(document.querySelector(".wrap"))c.className="fx";
- document.body.appendChild(p);document.body.appendChild(b);document.body.appendChild(c);
+ var hd=document.querySelector("header")||document.getElementById("hd"),sd=document.querySelector(".side");
+ if(hd){c.className="in";var w=hd.querySelector("#who");if(w)hd.insertBefore(c,w);else{var f=hd.firstElementChild;hd.insertBefore(c,f?f.nextSibling:null)}}
+ else if(sd){c.className="in";sd.insertBefore(c,sd.firstChild)}
+ else document.body.appendChild(c);
+ document.body.appendChild(p);document.body.appendChild(b);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build);else build();
 })();
