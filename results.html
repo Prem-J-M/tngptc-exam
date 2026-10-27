@@ -38,6 +38,8 @@ tr.abs td{color:var(--err)!important;background:var(--errbg)!important;font-weig
 .ans{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}
 .foot{position:sticky;bottom:0;background:var(--card);border-top:2px solid var(--accent);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));margin:0 -18px -18px;border-radius:0 0 18px 18px}
 .foot .btn{margin-top:8px}
+.lb td.rk{font-weight:800;width:56px}
+.lbh{margin:22px 0 4px}
 </style><script src="theme.js"></script></head><body hidden>
 <header><b>Results</b><span style="display:flex;gap:8px"><a href="teacher.html">Exams</a><a href="monitor.html">Monitor</a></span></header>
 <main><div id="msg" hidden></div>
@@ -49,6 +51,8 @@ tr.abs td{color:var(--err)!important;background:var(--errbg)!important;font-weig
 <div class="card" id="c-tab" hidden>
 <div id="r-sum"></div>
 <div class="scroll"><table><thead><tr><th>No.</th><th>Roll no</th><th>Name</th><th>Mark</th><th></th></tr></thead><tbody id="r-body"></tbody></table></div>
+<h2 class="lbh">Leaderboard</h2><small id="lb-info"></small>
+<div class="scroll"><table><thead><tr><th>Rank</th><th>Roll no</th><th>Name</th><th>Mark</th></tr></thead><tbody id="lb-body"></tbody></table></div>
 <button class="btn alt" id="r-dl" type="button">Download</button>
 <button class="btn" id="r-pub" type="button"></button></div>
 </section>
@@ -113,17 +117,37 @@ function draw(){
    var bt=el("button",x.marking_done?"Edit":"Correct","btn alt sm");bt.type="button";
    bt.onclick=function(){openMark(i)};a.appendChild(bt)}
   tr.appendChild(m);tr.appendChild(a);b.appendChild(tr)});
+ drawLB(tot);
  $("r-pub").textContent=ex.published?"Unpublish marks":"Publish marks to students";
+}
+
+function rankRows(){
+ var L=rows.filter(function(x){return x.attended&&x.marking_done&&x.status!=="in_progress"&&x.mark!=null});
+ L.sort(function(a,b){return Number(b.mark)-Number(a.mark)||String(a.roll_no).localeCompare(String(b.roll_no))});
+ var prev=null,rk=0;
+ rows.forEach(function(x){delete x._rank});
+ L.forEach(function(x,i){if(prev===null||Number(x.mark)!==prev){rk=i+1;prev=Number(x.mark)}x._rank=rk});
+ return L;
+}
+function drawLB(tot){
+ var L=rankRows(),b=$("lb-body");b.textContent="";
+ $("lb-info").textContent=L.length?("Ranked: "+L.length+" students (marked only). Same mark = same rank."):"No marked students yet.";
+ L.forEach(function(x){
+  var tr=document.createElement("tr");
+  var medal=x._rank===1?"\uD83E\uDD47 ":x._rank===2?"\uD83E\uDD48 ":x._rank===3?"\uD83E\uDD49 ":"";
+  tr.appendChild(el("td",medal+x._rank,"rk"));tr.appendChild(el("td",x.roll_no||""));tr.appendChild(el("td",x.name||""));
+  tr.appendChild(el("td",fmt(x.mark)+" / "+fmt(tot)));b.appendChild(tr)});
 }
 
 function q(v){v=String(v==null?"":v);if(/^[=+\-@]/.test(v))v="'"+v;return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 $("r-dl").onclick=function(){
  if(!data)return;
- var L=[["No","Roll no","Name","Status","Mark","Total"]];
+ rankRows();
+ var L=[["No","Roll no","Name","Status","Mark","Total","Rank"]];
  rows.forEach(function(x,i){
   var st=!x.attended?"Absent":(x.status==="in_progress"?"Writing":"Attended");
   var mk=(x.attended&&x.marking_done)?fmt(x.mark):"";
-  L.push([i+1,x.roll_no,x.name,st,mk,fmt(data.total)])});
+  L.push([i+1,x.roll_no,x.name,st,mk,fmt(data.total),(x._rank||"")])});
  var csv="\ufeff"+L.map(function(r){return r.map(q).join(",")}).join("\r\n");
  var blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
  var a=document.createElement("a");a.href=URL.createObjectURL(blob);
