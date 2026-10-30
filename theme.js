@@ -1,3 +1,15 @@
+/* TNGPTC: microphone is never allowed on any page */
+(function(){
+ try{["SpeechRecognition","webkitSpeechRecognition"].forEach(function(n){try{Object.defineProperty(window,n,{value:undefined,configurable:false})}catch(e){}})}catch(e){}
+ try{
+  var md=navigator.mediaDevices;
+  if(md&&md.getUserMedia){var g=md.getUserMedia.bind(md);
+   md.getUserMedia=function(c){if(c&&c.audio)return Promise.reject(new DOMException("Microphone blocked","NotAllowedError"));return g(c)}}
+  ["getUserMedia","webkitGetUserMedia","mozGetUserMedia"].forEach(function(n){
+   if(navigator[n]){var o=navigator[n].bind(navigator);
+    navigator[n]=function(c,ok,er){if(c&&c.audio){if(er)er(new DOMException("Microphone blocked","NotAllowedError"));return}return o(c,ok,er)}}});
+ }catch(e){}
+})();
 /* TNGPTC shared theme: 8 shiny themes + "Created by Prem J D2" credit */
 (function(){
 var T=[
