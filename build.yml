@@ -1,0 +1,84 @@
+name: TNGPTC
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: Website URL
+        default: https://prem-j-m.github.io/tngptc-exam/
+      app_name:
+        description: App name
+        default: TNGPTC Hub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: ${{ inputs.site_url || 'https://prem-j-m.github.io/tngptc-exam/' }}
+      APP_NAME: ${{ inputs.app_name || 'TNGPTC Hub' }}
+      PROJ: work/tngptc-apk
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Unzip project
+        run: |
+          rm -rf work && mkdir work
+          unzip -q tngptc-apk.zip -d work
+          ls "$PROJ"
+
+      - name: Set site url and app name
+        run: |
+          sed -i -E '/SITE_URL/ s#https?://[^"\\ ]+#'"$SITE_URL"'#' "$PROJ/app/build.gradle"
+          sed -i -E 's#(<string name="app_name">)[^<]*(</string>)#\1'"$APP_NAME"'\2#' "$PROJ/app/src/main/res/values/strings.xml"
+          grep -n "SITE_URL" "$PROJ/app/build.gradle" || true
+
+      - name: App icon (icon-512.png)
+        run: |
+          sudo apt-get install -y imagemagick >/dev/null
+          if [ -f icon-512.png ]; then SRC=icon-512.png; elif [ -f logo.png ]; then SRC=logo.png; else echo "no icon"; exit 0; fi
+          RES="$PROJ/app/src/main/res"
+          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            n=${d%%:*}; s=${d##*:}
+            mkdir -p "$RES/mipmap-$n"
+            convert "$SRC" -resize ${s}x${s} "png:$RES/mipmap-$n/ic_launcher.png"
+            cp "$RES/mipmap-$n/ic_launcher.png" "$RES/mipmap-$n/ic_launcher_round.png"
+          done
+          rm -rf "$RES"/mipmap-anydpi*
+          M="$PROJ/app/src/main/AndroidManifest.xml"
+          sed -i -E 's#android:icon="[^"]*"#android:icon="@mipmap/ic_launcher"#; s#android:roundIcon="[^"]*"#android:roundIcon="@mipmap/ic_launcher_round"#' "$M"
+
+      - name: Build APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          OUT="$GITHUB_WORKSPACE/dist"
+          mkdir -p "$OUT"
+          cd "$PROJ"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            gradle assembleRelease --no-daemon
+            echo "$KEYSTORE_BASE64" | base64 -d > ks.jks
+            BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+            UNS=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+            "$BT/zipalign" -f -p 4 "$UNS" aligned.apk
+            "$BT/apksigner" sign --ks ks.jks --ks-pass pass:"$KEYSTORE_PASSWORD" --ks-key-alias "$KEY_ALIAS" --key-pass pass:"$KEY_PASSWORD" --out "$OUT/TNGPTC-Exam.apk" aligned.apk
+          else
+            if [ -f gradlew ]; then chmod +x gradlew; ./gradlew assembleDebug --no-daemon; else gradle assembleDebug --no-daemon; fi
+            cp "$(find app/build/outputs/apk/debug -name '*.apk' | head -1)" "$OUT/TNGPTC-Exam.apk"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TNGPTC-Exam-APK
+          path: dist/TNGPTC-Exam.apk
